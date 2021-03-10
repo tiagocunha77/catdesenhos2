@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -22,9 +23,12 @@ public class Autor {
 	@Column(name = "idautor")
 	private Long id;
 	private String nome;
+	@Column(name = "username")
+	private String userName;
+	@JsonIgnore
+	private String pass;
 	@OneToMany(mappedBy = "autor")
 	@JsonIgnoreProperties("autor")
 	private List<Desenho> desenhos;
-	
 
 }
