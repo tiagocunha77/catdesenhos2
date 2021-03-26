@@ -10,8 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity
 @Table(name = "autor")
@@ -25,10 +26,15 @@ public class Autor {
 	private String nome;
 	@Column(name = "username")
 	private String userName;
-	@JsonIgnore
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private String pass;
+	
 	@OneToMany(mappedBy = "autor")
 	@JsonIgnoreProperties("autor")
 	private List<Desenho> desenhos;
+	
+	
+	
+	
 
 }
