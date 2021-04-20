@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,14 +25,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/").hasRole("ADMIN")
-		.anyRequest().authenticated()
-		.and().formLogin()
-		.successHandler(new CustomSuccesHandler())
-		.and()
-		.cors()
-		.and()
-		.csrf().disable();
+		http.authorizeRequests(configurer -> configurer.antMatchers("/error", "/login","/token").permitAll().anyRequest()
+				.authenticated()).formLogin()
+				.successHandler(new CustomSuccesHandler()).and().cors().and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+				
+				.exceptionHandling().disable().oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt).csrf()
+				.disable();
 	}
 
 	@Override
@@ -42,19 +43,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public PasswordEncoder getPasswordEncoder() {
 		return NoOpPasswordEncoder.getInstance();
 	}
-	
-	
+
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost","http://localhost:9000","http://10.0.2.15", "http://tiagocunhapc:9000","http://tiagocunhapc"));
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("https://localhost", "https://localhost:9000", "http://10.0.2.15",
+				"https://tiagocunhapc:9000", "https://tiagocunhapc", "https://localhost:3000"));
+		configuration.setAllowedMethods(Arrays.asList("*"));
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setAllowCredentials(true);
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 
 }
